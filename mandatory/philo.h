@@ -6,7 +6,7 @@
 /*   By: aet-tale <aet-tale@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/07 16:05:24 by aet-tale          #+#    #+#             */
-/*   Updated: 2024/06/10 11:16:58 by aet-tale         ###   ########.fr       */
+/*   Updated: 2024/06/10 11:31:07 by aet-tale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <pthread.h>
 
 typedef struct t_data
 {
