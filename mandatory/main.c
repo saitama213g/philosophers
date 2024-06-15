@@ -6,7 +6,7 @@
 /*   By: aet-tale <aet-tale@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/07 16:04:16 by aet-tale          #+#    #+#             */
-/*   Updated: 2024/06/15 12:55:19 by aet-tale         ###   ########.fr       */
+/*   Updated: 2024/06/15 16:39:00 by aet-tale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,11 @@ void	*eat_sleep_think(void	*param)
 	philo_info	*info;
 
 	info = (philo_info *)param;
+	if (param == NULL || info == NULL)
+	{
+		printf("param is NULL\n");
+		return (NULL);
+	}
 	if (info->time_to_die_counter - info->time_to_think_counter <= 0)
 	{
 		printf("philo number %i has died", info->number);
@@ -87,6 +92,8 @@ philo_info	give_info(int i, pthread_mutex_t *forks, int number_ph)
 	info.fork1 = &forks[i];
 	if (i + 1 == number_ph)
 		info.fork2 = &forks[0];
+	else
+		info.fork2 = &forks[i + 1];
 	return (info);
 }
 
@@ -94,30 +101,28 @@ philo_info	give_info(int i, pthread_mutex_t *forks, int number_ph)
 void	make_threads(pthread_t *arr_thr, pthread_mutex_t *forks, t_data *data)
 {
 	int			i;
-	philo_info	info;
+	philo_info	*info;
 
+	info = malloc(sizeof(philo_info));
 	i = 0;
 	while (i < data->philos)
 	{
-		info = give_info(i, forks, data->philos);
-		info.time_to_die = data->time_to_die;
-		info.time_to_die_counter = info.time_to_die;
-		info.time_to_sleep = data->time_to_sleep;
-		info.time_to_think_counter = 0;
+		info->number = i;
+		info->fork1 = &forks[i];
+		if (i + 1 == data->philos)
+			info->fork2 = &forks[0];
+		else
+			info->fork2 = &forks[i + 1];
+		info->time_to_die = data->time_to_die;
+		info->time_to_die_counter = info->time_to_die;
+		info->time_to_sleep = data->time_to_sleep;
+		info->time_to_think_counter = 0;
 		pthread_create(&arr_thr[i], NULL, eat_sleep_think, &info);
 		pthread_join(arr_thr[i], NULL);
 		i++;
+		printf("%i\n", i);
 	}
 }
-
-// void make_threads(pthread_t *arr_thr, int number_ph)
-// {
-// 	int i = 0;
-// 	while (i < number_ph)
-// 	{
-// 		i++;
-// 	}
-// }
 
 void philo(int ac, char **av)
 {

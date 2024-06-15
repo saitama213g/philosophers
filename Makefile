@@ -1,5 +1,5 @@
-CC = cc
-CFLAGS = -Wall -Wextra -Werror
+CC = gcc
+CFLAGS = -g -fsanitize=address 
 SRCS = mandatory/main.c mandatory/ft_atoi.c mandatory/ft_isdigit.c
 HEAD = mandatory/philo.h
 NAME = philosophers
