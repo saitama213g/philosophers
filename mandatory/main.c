@@ -6,7 +6,7 @@
 /*   By: aet-tale <aet-tale@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/07 16:04:16 by aet-tale          #+#    #+#             */
-/*   Updated: 2024/06/15 16:39:00 by aet-tale         ###   ########.fr       */
+/*   Updated: 2024/06/15 20:49:21 by aet-tale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,11 +49,8 @@ void	*eat_sleep_think(void	*param)
 	philo_info	*info;
 
 	info = (philo_info *)param;
-	if (param == NULL || info == NULL)
-	{
-		printf("param is NULL\n");
-		return (NULL);
-	}
+	printf("%i\n", info->time_to_die_counter);
+	printf("%i\n", info->time_to_think_counter);
 	if (info->time_to_die_counter - info->time_to_think_counter <= 0)
 	{
 		printf("philo number %i has died", info->number);
