@@ -17,19 +17,14 @@ typedef struct philo_info
 	int number;
 	pthread_mutex_t *fork1;
 	pthread_mutex_t *fork2;
-	int				*locked_forks;
 	int 			time_to_die;
-	int 			time_to_sleep;
-	int				time_to_think_counter;
-	int				time_to_die_counter;
 	int				time_to_eat;
-	int				think_sleep_eat;
+	int 			time_to_sleep;
+	int				time_to_die_counter;
+	int				time_to_think_counter;
+	int				even_odd;
+	// philo_info		*head;
 }philo_info;
-
-// typedef struct t_info
-// {
-	
-// }
 
 t_data give_data(int ac, char **av)
 {
@@ -49,35 +44,42 @@ void	*eat_sleep_think(void	*param)
 	philo_info	*info;
 
 	info = (philo_info *)param;
-	printf("%i\n", info->time_to_die_counter);
-	printf("%i\n", info->time_to_think_counter);
-	if (info->time_to_die_counter - info->time_to_think_counter <= 0)
+	// printf("time to die %i\n", info->time_to_die_counter);
+	if (info->time_to_die_counter <= 0)
 	{
-		printf("philo number %i has died", info->number);
+		printf("\033[31mphilo number %i has died\n\033[0m", info->number);
 		exit(0);
 		return NULL;
 	}
 	pthread_mutex_lock(info->fork1);
-		printf("philo number %i has taken a fork \n", info->number);
+		// if (info->number !=0)
+			printf("philo number %i has taken a fork \n", info->number);
 	pthread_mutex_lock(info->fork2);
-		printf("philo number %i has taken a fork \n", info->number);
+		// if (info->number !=0)
+			printf("philo number %i has taken a fork \n", info->number);
 		// make time_to_die reset
 		info->time_to_die_counter = info->time_to_die;
-		printf("philo number %i is eating \n", info->number);
+		// if (info->number !=0)
+			printf("philo number %i is eating \n", info->number);
 		// usleep the time of eating and make it eating
 		// usleep(info->time_to_eat);
-		usleep(200);
+		usleep(info->time_to_eat);
 		info->time_to_die_counter -= info->time_to_eat;
-		usleep(200);
-		printf("philo number %i is sleeping \n", info->number);
+		// printf("\033[31time to die %i\n", info->time_to_die_counter);
+		// if (info->number !=0)
+			printf("philo number %i is sleeping \n", info->number);
+		usleep(info->time_to_sleep);
 		info->time_to_die_counter -= info->time_to_sleep;
-		info->time_to_think_counter = 0;
+		// printf("\033[31time to die %i\n", info->time_to_die_counter);
+		// info->time_to_think_counter = 0;
 	pthread_mutex_unlock(info->fork2);
 	pthread_mutex_unlock(info->fork1);
-	printf("philo number %i is thinking\n", info->number);
-	info->time_to_think_counter++;
-	// info->time_to_think++;
-	// then think until forks are available to use or a philo dies
+	// if (info->number !=0)
+		printf("philo number %i is thinking\n", info->number);
+	// info->time_to_think_counter++;
+	// substract the duration after eating
+	info->time_to_die_counter -= 1;
+	printf("time to die %i for philo nmbr %i\n", info->time_to_die_counter, info ->number);
 	return (eat_sleep_think(info));
 }
 
@@ -94,42 +96,78 @@ philo_info	give_info(int i, pthread_mutex_t *forks, int number_ph)
 	return (info);
 }
 
-
+void asign_forks(philo_info	*info, int j, pthread_mutex_t *forks, int nm_ph)
+{
+	if (j % 2 == 0 && j < nm_ph - 1)
+	{
+		info->fork1 = &forks[j];
+		info->fork2 = &forks[j + 1];
+	}
+}
+void	give_forks(philo_info *info, pthread_mutex_t *forks, int nm_ph)
+{
+	int i = 0;
+	while (i < nm_ph)
+	{
+		info->fork1 = &forks[i];
+		if (i + 1 == nm_ph)
+			info->fork2 = &forks[0];
+		else
+			info->fork2 = &forks[i + 1];
+		info->even_odd = 0;
+		i++;
+		info++;
+	}
+}
 void	make_threads(pthread_t *arr_thr, pthread_mutex_t *forks, t_data *data)
 {
 	int			i;
 	philo_info	*info;
+	philo_info	*head;
 
-	info = malloc(sizeof(philo_info));
+	head = malloc(sizeof(philo_info)*data->philos);
 	i = 0;
+	info = head;
+	give_forks(info, forks, data->philos);
 	while (i < data->philos)
 	{
 		info->number = i;
-		info->fork1 = &forks[i];
-		if (i + 1 == data->philos)
-			info->fork2 = &forks[0];
-		else
-			info->fork2 = &forks[i + 1];
+		// info->head = head;
+		// asign_forks(info, i, forks ,data->philos);
 		info->time_to_die = data->time_to_die;
-		info->time_to_die_counter = info->time_to_die;
+		info->time_to_eat = data->time_to_eat;
 		info->time_to_sleep = data->time_to_sleep;
+		info->time_to_die_counter = info->time_to_die;
 		info->time_to_think_counter = 0;
-		pthread_create(&arr_thr[i], NULL, eat_sleep_think, &info);
-		pthread_join(arr_thr[i], NULL);
+		pthread_create(&arr_thr[i], NULL, eat_sleep_think, info);
+		usleep(200);
+		// pthread_join(arr_thr[i], NULL);
 		i++;
-		printf("%i\n", i);
+		info++;
+		// printf("%i\n", i);
 	}
+	for (i = 0; i < data->philos; i++) {
+        pthread_join(arr_thr[i], NULL);
+    }
 }
+
 
 void philo(int ac, char **av)
 {
 	t_data			data;
 	pthread_t		*arr_thr;
 	pthread_mutex_t	*forks;
+	int i = 0;
 
 	data = give_data(ac, av);
 	arr_thr = malloc(sizeof(pthread_t)*data.philos);
 	forks = malloc(sizeof(pthread_mutex_t)*data.philos);
+	while (i < data.philos)
+	{
+		pthread_mutex_init(&forks[i], NULL);
+		i++;
+	}
+	// give_forks(info,  data.philos);
 	make_threads(arr_thr, forks, &data);
 	// make_philos(data.philos);
 }

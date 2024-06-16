@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -g -fsanitize=address 
+# CFLAGS = -Wall
 SRCS = mandatory/main.c mandatory/ft_atoi.c mandatory/ft_isdigit.c
 HEAD = mandatory/philo.h
 NAME = philosophers
@@ -8,7 +8,7 @@ OBJS = $(SRCS:.c=.o)
 all : $(NAME)
 
 $(NAME) : $(OBJS)
-		$(CC) $(CFLAGS)  $(OBJS) -o $(NAME)
+		$(CC) $(OBJS) -o $(NAME)
 
 $(OBJS):$(HEAD)
 
