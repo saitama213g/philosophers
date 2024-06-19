@@ -6,36 +6,46 @@
 
 long time_to_sleep = 5;
 
-void    *print_sleeping(void *args)
+void    *increment(void *args)
 {
-    struct timeval tv;
-    long timestamp1;
-    long timestamp2;
-
-    gettimeofday(&tv, NULL);
-    timestamp1 = tv.tv_sec*1000000 + tv.tv_usec;
-    timestamp2 = timestamp1;
-    while (timestamp2 - timestamp1 < 1)
-    {
-        gettimeofday(&tv, NULL);
-        timestamp2 = tv.tv_sec*1000000 + tv.tv_usec;
-        printf("is sleeping\n");
-    }
+    pthread_mutex_t *t;
+    int i = 0;
+    t = (pthread_mutex_t*)args;
+    pthread_mutex_lock(t);
+    printf("hello world from thread 1\n");
+    sleep(7);
+    pthread_mutex_unlock(t);
+    return (NULL);
 }
-
+void    *say_hello(void *args)
+{
+    pthread_mutex_t *t;
+    int i = 0;
+    t = (pthread_mutex_t*)args;
+    // pthread_mutex_lock(t);
+    // printf("hello world from thread 2\n");
+    // pthread_mutex_unlock(t);
+    printf("waiting for mutex to get unlocked\n");
+    return (NULL);
+}
 int main(void)
 {
-    struct timeval  tv;
-    pthread_t       thread;
-    int             timestamp1;
-    int             timestamp2;
-    int             duration;
+	pthread_t thread_id;
+	pthread_t thread_id1;
+    pthread_mutex_t lock;
 
-    print_sleeping(NULL);
+
+    pthread_mutex_init(&lock, NULL);
+
+    pthread_create(&thread_id, NULL, increment, &lock);
+    pthread_create(&thread_id1, NULL, say_hello, &lock);
+    pthread_join(thread_id, NULL);
+    pthread_join(thread_id1, NULL);
+
+    // print_sleeping(NULL);
     // gettimeofday(&tv, NULL);
     // printf("%li\n", (tv.tv_sec*1000000 + tv.tv_usec)/1000000/60/60/24/30/12);
     // pthread_create(&thread, NULL, &print_sleeping, NULL);
-    // pthread_join(&thread, NULL);
     // printf("yes");
     // sleep(6);
 }
