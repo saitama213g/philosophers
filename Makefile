@@ -1,6 +1,6 @@
 CC = gcc
 # CFLAGS = -Wall
-SRCS = mandatory/main.c mandatory/ft_atoi.c mandatory/ft_isdigit.c
+SRCS = mandatory/main.c mandatory/ft_atoi.c mandatory/ft_isdigit.c mandatory/ft_give_data.c mandatory/give_forks.c
 HEAD = mandatory/philo.h
 NAME = philosophers
 OBJS = $(SRCS:.c=.o)
