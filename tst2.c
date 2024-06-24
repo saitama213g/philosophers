@@ -1,51 +1,43 @@
-#include <unistd.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <pthread.h>
-#include <sys/time.h>
 
-long time_to_sleep = 5;
+#define NUM_THREADS 1000000
 
-void    *increment(void *args)
-{
-    pthread_mutex_t *t;
-    int i = 0;
-    t = (pthread_mutex_t*)args;
-    pthread_mutex_lock(t);
-    printf("hello world from thread 1\n");
-    sleep(7);
-    pthread_mutex_unlock(t);
-    return (NULL);
+// Global mutex
+pthread_mutex_t print_mutex;
+
+void* thread_function(void* arg) {
+    // Lock the mutex before printing
+    // pthread_mutex_lock(&print_mutex);
+    
+    // Critical section: calling printf
+    printf("Thread %ld is running \n", (long)arg);
+    
+    // Unlock the mutex after printing
+    // pthread_mutex_unlock(&print_mutex);
+    
+    return NULL;
 }
-void    *say_hello(void *args)
-{
-    pthread_mutex_t *t;
-    int i = 0;
-    t = (pthread_mutex_t*)args;
-    // pthread_mutex_lock(t);
-    // printf("hello world from thread 2\n");
-    // pthread_mutex_unlock(t);
-    printf("waiting for mutex to get unlocked\n");
-    return (NULL);
-}
-int main(void)
-{
-	pthread_t thread_id;
-	pthread_t thread_id1;
-    pthread_mutex_t lock;
 
+int main() {
+    pthread_t threads[NUM_THREADS];
+    long i;
 
-    pthread_mutex_init(&lock, NULL);
+    // Initialize the mutex
+    pthread_mutex_init(&print_mutex, NULL);
 
-    pthread_create(&thread_id, NULL, increment, &lock);
-    pthread_create(&thread_id1, NULL, say_hello, &lock);
-    pthread_join(thread_id, NULL);
-    pthread_join(thread_id1, NULL);
+    // Create threads
+    for (i = 0; i < NUM_THREADS; i++) {
+        pthread_create(&threads[i], NULL, thread_function, (void*)i);
+    }
 
-    // print_sleeping(NULL);
-    // gettimeofday(&tv, NULL);
-    // printf("%li\n", (tv.tv_sec*1000000 + tv.tv_usec)/1000000/60/60/24/30/12);
-    // pthread_create(&thread, NULL, &print_sleeping, NULL);
-    // printf("yes");
-    // sleep(6);
+    // Join threads
+    for (i = 0; i < NUM_THREADS; i++) {
+        pthread_join(threads[i], NULL);
+    }
+
+    // Destroy the mutex
+    pthread_mutex_destroy(&print_mutex);
+
+    return 0;
 }

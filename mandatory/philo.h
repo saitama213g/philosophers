@@ -34,11 +34,19 @@ typedef struct t_philo_s
 	pthread_mutex_t	*forks;
 	pthread_mutex_t *fork1;
 	pthread_mutex_t *fork2;
-	t_data		info;
+	pthread_mutex_t	*x_mutex;
+	pthread_mutex_t	*printf_mtx;
+	t_data			info;
+	int				*all_have_eating;
+	int				*all_are_created;
 }t_philo_s;
 
 int		ft_atoi(char *s);
 int		ft_isdigit(int c);
 t_data	give_data(int ac, char **av);
+void	give_forks(t_philo_s *philos, pthread_mutex_t *forks, int philos_nmbr);
+int		ft_getters(int *x, pthread_mutex_t *mtx);
+void	ft_setters(int *x, int value, pthread_mutex_t *mtx);
+void join_thread(t_philo_s	*philos);
 
 # endif
