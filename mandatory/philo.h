@@ -6,7 +6,7 @@
 /*   By: aet-tale <aet-tale@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/07 16:05:24 by aet-tale          #+#    #+#             */
-/*   Updated: 2024/06/23 18:50:07 by aet-tale         ###   ########.fr       */
+/*   Updated: 2024/06/26 11:58:45 by aet-tale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,11 +34,11 @@ typedef struct t_philo_s
 	pthread_mutex_t	*forks;
 	pthread_mutex_t *fork1;
 	pthread_mutex_t *fork2;
-	pthread_mutex_t	*x_mutex;
 	pthread_mutex_t	*printf_mtx;
 	t_data			info;
 	int				*all_have_eating;
-	int				*all_are_created;
+	int				eating_counter;
+	long			last_time_eaten;
 }t_philo_s;
 
 int		ft_atoi(char *s);
