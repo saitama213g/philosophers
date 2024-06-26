@@ -35,10 +35,15 @@ typedef struct t_philo_s
 	pthread_mutex_t *fork1;
 	pthread_mutex_t *fork2;
 	pthread_mutex_t	*printf_mtx;
+	pthread_mutex_t	*is_dead_mtx;
+	pthread_mutex_t	*finished_mtx;
 	t_data			info;
-	int				*all_have_eating;
-	int				eating_counter;
-	long			last_time_eaten;
+	long			*philos_finished_eating;
+	long			eating_counter;
+	pthread_mutex_t	*eating_counter_mtx;
+	long			last_time_eaten;	
+	pthread_mutex_t	*last_time_eaten_mtx;
+	long			is_dead;
 }t_philo_s;
 
 int		ft_atoi(char *s);
@@ -47,6 +52,6 @@ t_data	give_data(int ac, char **av);
 void	give_forks(t_philo_s *philos, pthread_mutex_t *forks, int philos_nmbr);
 int		ft_getters(int *x, pthread_mutex_t *mtx);
 void	ft_setters(int *x, int value, pthread_mutex_t *mtx);
-void join_thread(t_philo_s	*philos);
+void	join_thread(t_philo_s	*philos);
 
 # endif

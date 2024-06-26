@@ -38,28 +38,39 @@ void	my_usleep(long	mili)
 		usleep(200);
 }
 
-
 void	eating(t_philo_s	*philo)
 {
 	pthread_mutex_lock(philo->fork1);
 	my_printf(philo, "has taken a fork");
 	pthread_mutex_lock(philo->fork2);
+	if (ft_getters(&(philo->is_dead), philo->is_dead_mtx))
+		return;
 	my_printf(philo, "has taken a fork");
-	philo->last_time_eaten = get_current_time();
+	ft_setters(philo->last_time_eaten, get_current_time(), philo->last_time_eaten_mtx);
 	my_printf(philo, "is eating");
 	my_usleep(philo->info.time_to_eat);
 	philo->eating_counter++;
+	if (philo->eating_counter == philo->info.eating_number)
+		ft_setters(philo->philos_finished_eating, *(philo->philos_finished_eating) + 1, philo->finished_mtx);
 	pthread_mutex_unlock(philo->fork1);
 	pthread_mutex_unlock(philo->fork2);
 }
 
 void thinking(t_philo_s	*philo)
 {
+	if (philo->eating_counter == philo->info.eating_number)
+		return;
+	else if (ft_getters(&(philo->is_dead), philo->is_dead_mtx))
+		return;
 	my_printf(philo, "is thinking");
 }
 
 void sleeping(t_philo_s *philo)
 {
+	if (ft_getters(philo->eating_counter, philo->eating_counter_mtx) == philo->info.eating_number)
+		return;
+	else if (ft_getters(&(philo->is_dead), philo->is_dead_mtx))
+		return;
 	my_printf(philo, "is sleeping");
 	my_usleep(philo->info.time_to_sleep);
 }
@@ -70,13 +81,58 @@ void	*eat_sleep_think(void	*params)
 
 	philo = (t_philo_s	*)params;
 
-	while (philo->eating_counter < philo->info.eating_number)
+	philo->eating_counter = 0;
+	// printf("%i\n", philo->philo_index);
+	// my_printf(philo, "am ok");
+	// printf("eating counter :%i\n", philo->eating_counter);
+	// printf("eating counter :%i\n", philo->info.eating_number);
+	if (philo->philo_index % 2 == 0)
 	{
-		thinking(philo);
-		eating(philo);
-		sleeping(philo);
+		while (philo->eating_counter < philo->info.eating_number || philo->info.eating_number == -1)
+		{
+			sleeping(philo);
+			thinking(philo);
+			eating(philo);
+		}
+	}else 
+	{
+		while (philo->eating_counter < philo->info.eating_number || philo->info.eating_number == -1)
+		{
+			eating(philo);
+			sleeping(philo);
+			thinking(philo);
+		}
 	}
 	return (NULL);
+}
+
+void	check_if_dead(t_philo_s *iti)
+{
+	if (get_current_time() - ft_getters_value(iti->last_time_eaten, iti->last_time_eaten_mtx) >= iti->info.time_to_die)
+	{
+		ft_setters(iti->is_dead, 1, iti->is_dead_mtx);
+		my_printf(iti, "is dead");
+	}
+}
+
+void check_death_all(t_philo_s	*philos)
+{
+	t_philo_s	*iti;
+	int	i;
+
+	iti = philos;
+	i = 0;
+	while (ft_getters(philos->philos_finished_eating, philos->finished_mtx) != philos->info.philos)
+	{
+		i = 0;
+		iti = philos;
+		while (i < iti->info.philos)
+		{
+			check_if_dead(iti);
+			iti++;
+			i++;
+		}
+	}
 }
 
 void	start_simulation(t_philo_s *philos)
@@ -88,43 +144,50 @@ void	start_simulation(t_philo_s *philos)
 	i = 0;
 	threads = philos->arr_thr;
 	phis = philos;
-	while (i < philos->info.philos)
+	// printf("%i \n", (philos->info).philos);
+	while (i < (philos->info).philos)
 	{
 		pthread_create(threads, NULL, eat_sleep_think, phis);
 		phis++;
 		threads++;
 		i++;
 	}
+	check_death_all(philos);
 	join_thread(philos);
 }
 
 t_philo_s	*make_philos(pthread_t	*arr_thr, pthread_mutex_t	*forks, t_data	info)
 {
-	// int				*all_are_created;
+	long			*philos_finished_eating;
 	int				i;
 	t_philo_s		*first;
 	t_philo_s		*philos;
-	// pthread_mutex_t	*get_x_mutex;
+	pthread_mutex_t	*finished_mtx;
+	pthread_mutex_t	*is_dead_mtx;
 	pthread_mutex_t	*printf_mtx;
 
 	i = 1;
 	first = malloc(sizeof(t_philo_s)*info.philos);
-	// get_x_mutex = malloc(sizeof(pthread_mutex_t));
+	finished_mtx = malloc(sizeof(pthread_mutex_t));
+	is_dead_mtx = malloc(sizeof(pthread_mutex_t));
 	printf_mtx = malloc(sizeof(pthread_mutex_t));
-	// pthread_mutex_init(get_x_mutex, NULL);
+	pthread_mutex_init(finished_mtx, NULL);
 	pthread_mutex_init(printf_mtx, NULL);
-	// all_are_created = malloc(sizeof(int));
-	// *all_are_created = 0;
+	pthread_mutex_init(is_dead_mtx, NULL);
+	philos_finished_eating = malloc(sizeof(int));
+	*philos_finished_eating = 0;
 	philos = first;
 	give_forks(philos, forks, info.philos);
-	while (i < info.philos)
+	while (i <= info.philos)
 	{
-		// philos->all_are_created = all_are_created;
+		philos->philos_finished_eating = philos_finished_eating;
 		philos->philo_index = i;
 		philos->info = info;
-		// philos->x_mutex = get_x_mutex;
+		philos->finished_mtx = finished_mtx;
 		philos->printf_mtx = printf_mtx;
 		philos->arr_thr = arr_thr;
+		philos->is_dead = 0;
+		philos->is_dead_mtx = is_dead_mtx;
 		philos++;
 		i++;
 	}

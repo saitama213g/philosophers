@@ -22,5 +22,7 @@ t_data give_data(int ac, char **av)
 	data.time_to_sleep = ft_atoi(av[4]);
 	if (ac == 6)
 		data.eating_number = ft_atoi(av[5]);
+	else if (ac == 5)
+		data.eating_number = -1;
 	return data;
 }

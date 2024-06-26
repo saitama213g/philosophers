@@ -18,8 +18,8 @@ void	give_forks(t_philo_s *philos, pthread_mutex_t *forks, int philos_nmbr)
 
 	while (i < philos_nmbr)
 	{
-		philos->fork1 = &forks[i];
-		philos->fork2 = &forks[(i+1)%5];
+		philos->fork1 = &forks[i - 1];
+		philos->fork2 = &forks[(i)%5];
 		i++;
 		philos++;
 	}
