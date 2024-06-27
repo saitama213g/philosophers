@@ -50,8 +50,10 @@ int		ft_atoi(char *s);
 int		ft_isdigit(int c);
 t_data	give_data(int ac, char **av);
 void	give_forks(t_philo_s *philos, pthread_mutex_t *forks, int philos_nmbr);
-int		ft_getters(int *x, pthread_mutex_t *mtx);
-void	ft_setters(int *x, int value, pthread_mutex_t *mtx);
+long	ft_getters(long *x, pthread_mutex_t *mtx);
+void	ft_setters(long *x, int value, pthread_mutex_t *mtx);
 void	join_thread(t_philo_s	*philos);
+void	ft_setters_value(long x, long value, pthread_mutex_t *mtx);
+long	ft_getters_value(long x, pthread_mutex_t *mtx);
 
 # endif

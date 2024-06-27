@@ -1,6 +1,6 @@
 #include "philo.h"
 
-int	ft_getters(long *x, pthread_mutex_t *mtx)
+long	ft_getters(long *x, pthread_mutex_t *mtx)
 {
 	long n;
 
