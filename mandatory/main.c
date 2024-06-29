@@ -6,7 +6,7 @@
 /*   By: aet-tale <aet-tale@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/07 16:04:16 by aet-tale          #+#    #+#             */
-/*   Updated: 2024/06/29 22:29:46 by aet-tale         ###   ########.fr       */
+/*   Updated: 2024/06/29 22:32:56 by aet-tale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,7 @@ void	eating(t_philo_s	*philo)
 	pthread_mutex_unlock(philo->eating_counter_mtx);
 	if (philo->eating_counter == philo->info.eating_number)
 	{
-		ft_setters(philo->philos_finished_eating, philo->philos_finished_eating + 1, philo->finished_mtx);
+		ft_setters(philo->philos_finished_eating, *(philo->philos_finished_eating) + 1, philo->finished_mtx);
 	}
 		// ft_setters(philo->philos_finished_eating, *(philo->philos_finished_eating) + 1, philo->finished_mtx);
 	pthread_mutex_unlock(philo->fork1);
@@ -101,7 +101,7 @@ void	*eat_sleep_think(void	*params)
 	philo->last_time_eaten = get_current_time();
 	if (philo->philo_index % 2 == 1)
 		sleeping(philo);
-	while (philo->info.eating_number == -1 || !ft_getters(philo->stop_simulation, philo->stop_simulation_mtx) || ft_getters(philo->philos_finished_eating, philo->finished_mtx) != philo->info.philos)
+	while (philo->info.eating_number == -1 || !ft_getters(philo->stop_simulation, philo->stop_simulation_mtx) )
 	{
 		thinking(philo);
 		eating(philo);
