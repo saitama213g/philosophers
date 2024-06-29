@@ -6,7 +6,7 @@
 /*   By: aet-tale <aet-tale@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/07 16:05:24 by aet-tale          #+#    #+#             */
-/*   Updated: 2024/06/26 11:58:45 by aet-tale         ###   ########.fr       */
+/*   Updated: 2024/06/27 18:12:58 by aet-tale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,11 +39,14 @@ typedef struct t_philo_s
 	pthread_mutex_t	*finished_mtx;
 	t_data			info;
 	long			*philos_finished_eating;
+	long			*stop_simulation;
+	pthread_mutex_t	*stop_simulation_mtx;
 	long			eating_counter;
 	pthread_mutex_t	*eating_counter_mtx;
 	long			last_time_eaten;	
 	pthread_mutex_t	*last_time_eaten_mtx;
 	long			is_dead;
+	long			*starting_of_simulation;
 }t_philo_s;
 
 int		ft_atoi(char *s);
@@ -51,7 +54,7 @@ int		ft_isdigit(int c);
 t_data	give_data(int ac, char **av);
 void	give_forks(t_philo_s *philos, pthread_mutex_t *forks, int philos_nmbr);
 long	ft_getters(long *x, pthread_mutex_t *mtx);
-void	ft_setters(long *x, int value, pthread_mutex_t *mtx);
+void	ft_setters(long *x, long value, pthread_mutex_t *mtx);
 void	join_thread(t_philo_s	*philos);
 void	ft_setters_value(long x, long value, pthread_mutex_t *mtx);
 long	ft_getters_value(long x, pthread_mutex_t *mtx);

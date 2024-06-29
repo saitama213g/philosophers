@@ -10,7 +10,7 @@ long	ft_getters(long *x, pthread_mutex_t *mtx)
 	pthread_mutex_unlock(mtx);
 	return (n);
 }
-void	ft_setters(long *x, int value, pthread_mutex_t *mtx)
+void	ft_setters(long *x, long value, pthread_mutex_t *mtx)
 {
 	pthread_mutex_lock(mtx);
 	*x = value;
@@ -20,7 +20,7 @@ void	ft_setters(long *x, int value, pthread_mutex_t *mtx)
 long	ft_getters_value(long x, pthread_mutex_t *mtx)
 {
 	long	n;
-    
+
 	n = -1;
 	pthread_mutex_lock(mtx);
 	n = x;
