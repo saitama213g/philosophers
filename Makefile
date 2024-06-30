@@ -9,7 +9,7 @@ OBJS = $(SRCS:.c=.o)
 all : $(NAME)
 
 $(NAME) : $(OBJS)
-		$(CC) -Wall -fsanitize=address $(OBJS) -o $(NAME)
+		$(CC) -Wall -g -fsanitize=thread $(OBJS) -o $(NAME)
 
 $(OBJS):$(HEAD)
 
