@@ -6,7 +6,7 @@
 /*   By: aet-tale <aet-tale@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/07 16:05:24 by aet-tale          #+#    #+#             */
-/*   Updated: 2024/06/30 15:36:41 by aet-tale         ###   ########.fr       */
+/*   Updated: 2024/06/30 16:39:43 by aet-tale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,7 @@ typedef struct t_philo_s
 	pthread_mutex_t	*stop_simulation_mtx;
 	pthread_mutex_t	*eating_counter_mtx;
 	pthread_mutex_t	*last_time_eaten_mtx;
+	pthread_mutex_t	*eating_number_mtx;
 	// long			is_dead;
 }t_philo_s;
 
