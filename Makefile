@@ -9,7 +9,7 @@ OBJS = $(SRCS:.c=.o)
 all : $(NAME)
 
 $(NAME) : $(OBJS)
-		$(CC) -Wall -g -fsanitize=thread $(OBJS) -o $(NAME)
+		$(CC) -Wall $(OBJS) -o $(NAME)
 
 $(OBJS):$(HEAD)
 

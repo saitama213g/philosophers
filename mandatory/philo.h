@@ -29,7 +29,7 @@ typedef struct t_data
 	pthread_mutex_t	printf_mtx;
 	pthread_mutex_t	starting_of_simulation_mtx;
 	pthread_mutex_t	finished_mtx;
-	pthread_mutex_t	eating_counter_mtx;
+	// pthread_mutex_t	eating_counter_mtx;
 	pthread_mutex_t	eating_number_mtx;
 }t_data;
 
@@ -41,7 +41,6 @@ typedef struct t_philo_s
 	pthread_t		*arr_thr;
 	long			*philos_finished_eating;
 	long			last_time_eaten;
-	// long			last_time_eaten;
 	long			eating_counter;
 	long			*starting_of_simulation;
 	pthread_mutex_t	*forks;

@@ -44,19 +44,18 @@ void	my_usleep(long	mili)
 
 void	eating(t_philo_s	*philo)
 {
-	if (ft_getters(philo->stop_simulation, &philo->info.stop_simulation_mtx) || philo->eating_counter == *(philo->info.eating_number))
+	if (ft_getters(philo->stop_simulation, &philo->info.stop_simulation_mtx) || philo->eating_counter == ft_getters(philo->info.eating_number, &philo->info.eating_number_mtx))
 		return ;
 	pthread_mutex_lock(philo->fork1);
 	my_printf(philo, "has taken a fork");
 	pthread_mutex_lock(philo->fork2);
 	if (ft_getters(philo->stop_simulation, &philo->info.stop_simulation_mtx))
 	{
-		pthread_mutex_unlock(philo->fork1);
 		pthread_mutex_unlock(philo->fork2);
+		pthread_mutex_unlock(philo->fork1);
 		return ;
 	}
 	my_printf(philo, "has taken a fork");
-	// ft_setters_value(philo, get_current_time(), philo->last_time_eaten_mtx);
 	
 	pthread_mutex_lock(&philo->last_time_eaten_mtx);
 	philo->last_time_eaten = get_current_time();
@@ -69,25 +68,19 @@ void	eating(t_philo_s	*philo)
 	philo->eating_counter = philo->eating_counter + 1;
 	pthread_mutex_unlock(&philo->eating_counter_mtx);
 	
-	// ft_setters_value(philo->eating_counter, philo->eating_counter + 1, philo->eating_counter_mtx);
-	pthread_mutex_lock(&philo->eating_counter_mtx);
-	philo->eating_counter = philo->eating_counter + 1;
-	// philo->last_time_eaten = get_current_time();
-	pthread_mutex_unlock(&philo->eating_counter_mtx);
-	
-	if (philo->eating_counter == *(philo->info.eating_number))
+	if (ft_getters_value(philo->eating_counter, &philo->eating_counter_mtx) == ft_getters(philo->info.eating_number, &philo->info.eating_number_mtx))
 		ft_setters(philo->philos_finished_eating, *(philo->philos_finished_eating) + 1, &philo->info.finished_mtx);
 
-	pthread_mutex_unlock(philo->fork1);
 	pthread_mutex_unlock(philo->fork2);
+	pthread_mutex_unlock(philo->fork1);
 }
 
 void thinking(t_philo_s	*philo)
 {
 	if (ft_getters_value(philo->eating_counter, &philo->eating_counter_mtx) == ft_getters(philo->info.eating_number, &philo->info.eating_number_mtx))
-		return;
+		return ;
 	else if (ft_getters(philo->stop_simulation, &philo->info.stop_simulation_mtx))
-		return;
+		return ;
 	my_printf(philo, "is thinking");
 	// printf("%ld eating counter\n", ft_getters_value(philo->eating_counter, philo->eating_counter_mtx));
 	// printf("%ld eating number\n", ft_getters(philo->info.eating_number, philo->eating_number_mtx));
@@ -112,36 +105,39 @@ void	*eat_sleep_think(void	*params)
 	philo = (t_philo_s	*)params;
 
 	philo->eating_counter = 0;
-	philo->last_time_eaten = get_current_time();
-	// if (philo->philo_index % 2 == 0)
-	// 	sleeping(philo);
-	// while (ft_getters(philo->info.eating_number, philo->eating_number_mtx) == -1 || !ft_getters(philo->stop_simulation, philo->stop_simulation_mtx))
-	// {
+	pthread_mutex_lock(&philo->last_time_eaten_mtx);
+	philo->last_time_eaten =  get_current_time();
+	pthread_mutex_unlock(&philo->last_time_eaten_mtx);
+	if (philo->philo_index % 2 == 0)
+		sleeping(philo);
+	while (ft_getters(philo->info.eating_number, &philo->info.eating_number_mtx) == -1 || !ft_getters(philo->stop_simulation, &philo->info.stop_simulation_mtx))
+	{
 		thinking(philo);
-		// eating(philo);
-		// sleeping(philo);
-		// if (ft_getters_value(philo->eating_counter, philo->eating_counter_mtx) == ft_getters(philo->info.eating_number, philo->eating_number_mtx))
-		// 	return (NULL);
-		// my_printf(philo, "is still working");
-		// printf("stop simu %ld\n", ft_getters(philo->stop_simulation, philo->stop_simulation_mtx));
-		// printf("eating nmbr %ld\n", *(philo->info.eating_number));
-	// }
+		eating(philo);
+		if (ft_getters_value(philo->eating_counter, &philo->eating_counter_mtx) == ft_getters(philo->info.eating_number, &philo->info.eating_number_mtx))
+			return (NULL);
+		sleeping(philo);
+	}
 	return (NULL);
 }
 
 int	check_if_dead(t_philo_s	*iti)
 {
-	// printf("%d\n", iti->philo_index);
-	// printf("time to die %ld\n", iti->info.time_to_die);
-	// printf("\033[1;31m" "last_time_eaten %ld\n" "\033[0m", iti->last_time_eaten);
-	// printf("\033[1;31m" "current_time %ld\n" "\033[0m", get_current_time());
-	// printf("\033[1;31m" "%ld\n\n" "\033[0m", get_current_time() - iti->last_time_eaten);
-	if (get_current_time() - ft_getters_value(iti->last_time_eaten, &iti->last_time_eaten_mtx) > iti->info.time_to_die)
+	my_usleep(100);
+	if ((get_current_time() - ft_getters_value(iti->last_time_eaten, &iti->last_time_eaten_mtx)) >= iti->info.time_to_die)
 	{
+		pthread_mutex_lock(&iti->info.printf_mtx);
+		printf("%d\n", iti->philo_index);
+		printf("\033[1;31m" "last_time_eaten %ld\n" "\033[0m", iti->last_time_eaten);
+		printf("\033[1;31m" "current_time %ld\n" "\033[0m", get_current_time());
+		printf("time to die %ld\n", iti->info.time_to_die);
+		printf("\033[1;31m" "%ld\n\n" "\033[0m", get_current_time() - ft_getters_value(iti->last_time_eaten, &iti->last_time_eaten_mtx));
+		pthread_mutex_unlock(&iti->info.printf_mtx);
 		// printf("\033[1;31m" "%ld last time has eating" "\033[0m", get_current_time() - ft_getters_value(iti->last_time_eaten, iti->last_time_eaten_mtx));
 		// ft_setters_value(iti->is_dead, 1, iti->is_dead_mtx);
 		ft_setters(iti->stop_simulation, 1, &iti->info.printf_mtx);
-		ft_setters(iti->info.eating_number, -2, &iti->info.eating_number_mtx);
+		if (ft_getters(iti->info.eating_number, &iti->info.eating_number_mtx) == -1)
+			ft_setters(iti->info.eating_number, -2, &iti->info.eating_number_mtx);
 		my_printf(iti, "*** is dead ***\n");
 		return (1);
 	}
@@ -152,7 +148,6 @@ void	check_death_all(t_philo_s	*philos)
 {
 	t_philo_s	*iti;
 	int			i;
-	// int			j = 0;
 
 	iti = philos;
 	i = 0;
@@ -167,7 +162,6 @@ void	check_death_all(t_philo_s	*philos)
 					return ;
 			iti++;
 			i++;
-			// j++;
 		}
 	}
 }
@@ -181,10 +175,7 @@ void	start_simulation(t_philo_s	*philos)
 	i = 0;
 	threads = philos->arr_thr;
 	phis = philos;
-	// printf("%i \n", (philos->info).philos);
 	ft_setters(philos->starting_of_simulation, get_current_time(), &philos->info.starting_of_simulation_mtx);
-	// printf("%ld %i %s\n", get_current_time() - ft_getters(philos->starting_of_simulation, philos->starting_of_simulation_mtx), philos->philo_index , "is sleeping");
-	// printf("%ld");
 	while (i < (philos->info).philos)
 	{
 		pthread_create(threads, NULL, eat_sleep_think, phis);
