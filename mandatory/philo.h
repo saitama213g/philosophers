@@ -29,7 +29,6 @@ typedef struct t_data
 	pthread_mutex_t	printf_mtx;
 	pthread_mutex_t	starting_of_simulation_mtx;
 	pthread_mutex_t	finished_mtx;
-	// pthread_mutex_t	eating_counter_mtx;
 	pthread_mutex_t	eating_number_mtx;
 }t_data;
 

@@ -69,7 +69,12 @@ void	eating(t_philo_s	*philo)
 	pthread_mutex_unlock(&philo->eating_counter_mtx);
 	
 	if (ft_getters_value(philo->eating_counter, &philo->eating_counter_mtx) == ft_getters(philo->info.eating_number, &philo->info.eating_number_mtx))
-		ft_setters(philo->philos_finished_eating, *(philo->philos_finished_eating) + 1, &philo->info.finished_mtx);
+	{
+		pthread_mutex_lock(&philo->info.finished_mtx);
+		*(philo->philos_finished_eating) = *(philo->philos_finished_eating) + 1;
+		pthread_mutex_unlock(&philo->info.finished_mtx);
+	}
+		// ft_setters(philo->philos_finished_eating, *(philo->philos_finished_eating) + 1, &philo->info.finished_mtx);
 
 	pthread_mutex_unlock(philo->fork2);
 	pthread_mutex_unlock(philo->fork1);
@@ -82,10 +87,6 @@ void thinking(t_philo_s	*philo)
 	else if (ft_getters(philo->stop_simulation, &philo->info.stop_simulation_mtx))
 		return ;
 	my_printf(philo, "is thinking");
-	// printf("%ld eating counter\n", ft_getters_value(philo->eating_counter, philo->eating_counter_mtx));
-	// printf("%ld eating number\n", ft_getters(philo->info.eating_number, philo->eating_number_mtx));
-	// printf("%ld stop simu\n\n", ft_getters(philo->stop_simulation, philo->&philo->info.stop_simulation_mtx));
-	// 	return;
 }
 
 void	sleeping(t_philo_s	*philo)
@@ -118,7 +119,7 @@ void	*eat_sleep_think(void	*params)
 			return (NULL);
 		sleeping(philo);
 	}
-	return (NULL);
+	return (NULL); 
 }
 
 int	check_if_dead(t_philo_s	*iti)
@@ -126,15 +127,14 @@ int	check_if_dead(t_philo_s	*iti)
 	my_usleep(100);
 	if ((get_current_time() - ft_getters_value(iti->last_time_eaten, &iti->last_time_eaten_mtx)) >= iti->info.time_to_die)
 	{
-		pthread_mutex_lock(&iti->info.printf_mtx);
-		printf("%d\n", iti->philo_index);
-		printf("\033[1;31m" "last_time_eaten %ld\n" "\033[0m", iti->last_time_eaten);
-		printf("\033[1;31m" "current_time %ld\n" "\033[0m", get_current_time());
-		printf("time to die %ld\n", iti->info.time_to_die);
-		printf("\033[1;31m" "%ld\n\n" "\033[0m", get_current_time() - ft_getters_value(iti->last_time_eaten, &iti->last_time_eaten_mtx));
-		pthread_mutex_unlock(&iti->info.printf_mtx);
+		// pthread_mutex_lock(&iti->info.printf_mtx);
+		// printf("%d\n", iti->philo_index);
+		// printf("\033[1;31m" "last_time_eaten %ld\n" "\033[0m", iti->last_time_eaten);
+		// printf("\033[1;31m" "current_time %ld\n" "\033[0m", get_current_time());
+		// printf("time to die %ld\n", iti->info.time_to_die);
+		// printf("\033[1;31m" "%ld\n\n" "\033[0m", get_current_time() - ft_getters_value(iti->last_time_eaten, &iti->last_time_eaten_mtx));
+		// pthread_mutex_unlock(&iti->info.printf_mtx);
 		// printf("\033[1;31m" "%ld last time has eating" "\033[0m", get_current_time() - ft_getters_value(iti->last_time_eaten, iti->last_time_eaten_mtx));
-		// ft_setters_value(iti->is_dead, 1, iti->is_dead_mtx);
 		ft_setters(iti->stop_simulation, 1, &iti->info.printf_mtx);
 		if (ft_getters(iti->info.eating_number, &iti->info.eating_number_mtx) == -1)
 			ft_setters(iti->info.eating_number, -2, &iti->info.eating_number_mtx);
@@ -151,15 +151,22 @@ void	check_death_all(t_philo_s	*philos)
 
 	iti = philos;
 	i = 0;
-	while (ft_getters(philos->philos_finished_eating, &philos->info.finished_mtx) != philos->info.philos)
+	// printf("%i %i\n", i, iti->info.philos);
+	while (ft_getters(philos->philos_finished_eating, &philos->info.finished_mtx) != philos->info.philos && !ft_getters(philos->stop_simulation, &philos->info.stop_simulation_mtx))
 	{
 		i = 0;
 		iti = philos;
 		while (i < iti->info.philos)
 		{
 			if (ft_getters_value(iti->eating_counter, &iti->eating_counter_mtx) < ft_getters(iti->info.eating_number, &iti->info.eating_number_mtx) || ft_getters(iti->info.eating_number, &iti->info.eating_number_mtx) == -1)
+			{
 				if (check_if_dead(iti))
-					return ;
+				{
+					// printf("someone has dies\n");
+					break;
+				}
+			}
+			break ;
 			iti++;
 			i++;
 		}
@@ -168,7 +175,7 @@ void	check_death_all(t_philo_s	*philos)
 
 void	start_simulation(t_philo_s	*philos)
 {
-	int			i;
+	int			i; 
 	pthread_t	*threads;
 	t_philo_s	*phis;
 
@@ -183,7 +190,7 @@ void	start_simulation(t_philo_s	*philos)
 		threads++;
 		i++;
 	}
-	// check_death_all(philos);
+	check_death_all(philos);
 	join_thread(philos);
 }
 
@@ -196,18 +203,17 @@ t_philo_s	*make_philos(pthread_t	*arr_thr, pthread_mutex_t	*forks, t_data	info)
 	t_philo_s		*first;
 	t_philo_s		*philos;
 
-	i = 0;
-	first = malloc(sizeof(t_philo_s)*info.philos);
-	starting_of_simulation = malloc(sizeof(long));
 	i = 1;
+	philos_finished_eating = malloc(sizeof(long));
+	starting_of_simulation = malloc(sizeof(long));
+	stop_simulation = malloc(sizeof(long));
+	first = malloc(sizeof(t_philo_s)*info.philos);
 	pthread_mutex_init(&info.stop_simulation_mtx, NULL);
 	pthread_mutex_init(&info.finished_mtx, NULL);
 	pthread_mutex_init(&info.starting_of_simulation_mtx, NULL);
 	pthread_mutex_init(&info.printf_mtx, NULL);
 	pthread_mutex_init(&info.eating_number_mtx, NULL);
-	philos_finished_eating = malloc(sizeof(long));
 	*philos_finished_eating = 0;
-	stop_simulation = malloc(sizeof(long));
 	*stop_simulation = 0;
 	*starting_of_simulation = 0;
 	philos = first;

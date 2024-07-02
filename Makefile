@@ -1,5 +1,5 @@
 CC = gcc
-# CFLAGS = -Wall
+# CFLAGS =  -fsanitize=address
 SRCS = mandatory/main.c mandatory/ft_atoi.c mandatory/ft_isdigit.c mandatory/ft_give_data.c \
 	   mandatory/give_forks.c mandatory/setter_getters.c mandatory/ft_jointhreads.c
 HEAD = mandatory/philo.h
@@ -9,7 +9,7 @@ OBJS = $(SRCS:.c=.o)
 all : $(NAME)
 
 $(NAME) : $(OBJS)
-		$(CC) -Wall $(OBJS) -o $(NAME)
+		$(CC)  $(OBJS) -o $(NAME)
 
 $(OBJS):$(HEAD)
 
