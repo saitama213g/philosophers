@@ -24,7 +24,7 @@ re: fclean all
 
 fclean:
 	make -C libft fclean
-	rm $(OBJS)
-	rm $(NAME)
+	rm -f $(OBJS)
+	rm -f $(NAME)
 
 .PHONY : all bonus clean fclean re

@@ -20,11 +20,17 @@
 
 typedef struct t_data
 {
-	int		philos;
-	long	time_to_die;
-	long	time_to_eat;
-	long	time_to_sleep;
-	long		*eating_number;
+	int				philos;
+	long			time_to_die;
+	long			time_to_eat;
+	long			time_to_sleep;
+	long			*eating_number;
+	pthread_mutex_t	stop_simulation_mtx;
+	pthread_mutex_t	printf_mtx;
+	pthread_mutex_t	starting_of_simulation_mtx;
+	pthread_mutex_t	finished_mtx;
+	pthread_mutex_t	eating_counter_mtx;
+	pthread_mutex_t	eating_number_mtx;
 }t_data;
 
 typedef struct t_philo_s
@@ -41,15 +47,8 @@ typedef struct t_philo_s
 	pthread_mutex_t	*forks;
 	pthread_mutex_t *fork1;
 	pthread_mutex_t *fork2;
-	pthread_mutex_t	*printf_mtx;
-	pthread_mutex_t	*is_dead_mtx;
-	pthread_mutex_t	*finished_mtx;
-	pthread_mutex_t	*stop_simulation_mtx;
-	pthread_mutex_t	*eating_counter_mtx;
-	pthread_mutex_t	*last_time_eaten_mtx;
-	pthread_mutex_t	*eating_number_mtx;
-	pthread_mutex_t	*starting_of_simulation_mtx;
-	// long			is_dead;
+	pthread_mutex_t	last_time_eaten_mtx;
+	pthread_mutex_t	eating_counter_mtx;
 }t_philo_s;
 
 int		ft_atoi(char *s);
