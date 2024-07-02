@@ -47,6 +47,8 @@ void	eating(t_philo_s	*philo)
 	if (ft_getters(philo->stop_simulation, &philo->info.stop_simulation_mtx) || philo->eating_counter == ft_getters(philo->info.eating_number, &philo->info.eating_number_mtx))
 		return ;
 	pthread_mutex_lock(philo->fork1);
+	if (ft_getters(philo->stop_simulation, &philo->info.stop_simulation_mtx) || philo->eating_counter == ft_getters(philo->info.eating_number, &philo->info.eating_number_mtx))
+		return ;
 	my_printf(philo, "has taken a fork");
 	pthread_mutex_lock(philo->fork2);
 	if (ft_getters(philo->stop_simulation, &philo->info.stop_simulation_mtx))
@@ -124,7 +126,7 @@ void	*eat_sleep_think(void	*params)
 
 int	check_if_dead(t_philo_s	*iti)
 {
-	my_usleep(100);
+	usleep(100);
 	if ((get_current_time() - ft_getters_value(iti->last_time_eaten, &iti->last_time_eaten_mtx)) >= iti->info.time_to_die)
 	{
 		// pthread_mutex_lock(&iti->info.printf_mtx);
