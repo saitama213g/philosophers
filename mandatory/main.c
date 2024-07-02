@@ -6,7 +6,7 @@
 /*   By: aet-tale <aet-tale@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/07 16:04:16 by aet-tale          #+#    #+#             */
-/*   Updated: 2024/07/02 18:37:56 by aet-tale         ###   ########.fr       */
+/*   Updated: 2024/07/02 18:55:09 by aet-tale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,6 +91,14 @@ void thinking(t_philo_s	*philo)
 	my_printf(philo, "is thinking");
 }
 
+void	make_one_philo(t_philo_s	*philo)
+{
+	my_printf(philo, "is thinking");
+	my_printf(philo, "has taken a fork");
+	my_usleep(philo->info.time_to_die);
+	my_printf(philo, "has died");
+}
+
 void	sleeping(t_philo_s	*philo)
 {
 	if (ft_getters_value(philo->eating_counter, &philo->eating_counter_mtx) == ft_getters(philo->info.eating_number, &philo->info.eating_number_mtx))
@@ -111,16 +119,20 @@ void	*eat_sleep_think(void	*params)
 	pthread_mutex_lock(&philo->last_time_eaten_mtx);
 	philo->last_time_eaten =  get_current_time();
 	pthread_mutex_unlock(&philo->last_time_eaten_mtx);
-	if (philo->philo_index % 2 == 0)
-		sleeping(philo);
-	while (ft_getters(philo->info.eating_number, &philo->info.eating_number_mtx) == -1 || !ft_getters(philo->stop_simulation, &philo->info.stop_simulation_mtx))
+	if (philo->info.philos == 1)
+		make_one_philo(philo);
+	else
 	{
-		thinking(philo);
-		eating(philo);
-		if (ft_getters_value(philo->eating_counter, &philo->eating_counter_mtx) == ft_getters(philo->info.eating_number, &philo->info.eating_number_mtx))
-			return (NULL);
-		sleeping(philo);
-		// my_printf(philo, "still working\n");
+		if (philo->philo_index % 2 == 0)
+			sleeping(philo);
+		while (ft_getters(philo->info.eating_number, &philo->info.eating_number_mtx) == -1 || !ft_getters(philo->stop_simulation, &philo->info.stop_simulation_mtx))
+		{
+			thinking(philo);
+			eating(philo);
+			if (ft_getters_value(philo->eating_counter, &philo->eating_counter_mtx) == ft_getters(philo->info.eating_number, &philo->info.eating_number_mtx))
+				return (NULL);
+			sleeping(philo);
+		}
 	}
 	return (NULL); 
 }
@@ -192,7 +204,8 @@ void	start_simulation(t_philo_s	*philos)
 		threads++;
 		i++;
 	}
-	check_death_all(philos);
+	if (philos->info.philos != 1)
+		check_death_all(philos);
 	join_thread(philos);
 }
 
