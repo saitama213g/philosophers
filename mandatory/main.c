@@ -6,7 +6,7 @@
 /*   By: aet-tale <aet-tale@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/07 16:04:16 by aet-tale          #+#    #+#             */
-/*   Updated: 2024/07/02 18:55:09 by aet-tale         ###   ########.fr       */
+/*   Updated: 2024/07/02 19:24:57 by aet-tale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,11 +20,18 @@ long	get_current_time(void)
     return ((tv.tv_sec * 1000) + (tv.tv_usec / 1000));
 }
 
-void	my_printf(t_philo_s	*philo, char *str)
+int	my_printf(t_philo_s	*philo, char *str)
 {
 	pthread_mutex_lock(&philo->info.printf_mtx);
+	if (ft_getters(philo->stop_simulation, &philo->info.stop_simulation_mtx))
+	{
+		pthread_mutex_unlock(&philo->info.printf_mtx);
+		return 0;
+	}
 	printf("%ld %i %s\n", get_current_time() - ft_getters(philo->starting_of_simulation, &philo->info.starting_of_simulation_mtx), philo->philo_index , str);
+	// printf("%ld %i %s\n", get_current_time() - ft_getters(philo->starting_of_simulation, &philo->info.starting_of_simulation_mtx), philo->philo_index , str);
 	pthread_mutex_unlock(&philo->info.printf_mtx);
+	return 1;
 }
 
 void	my_usleep(long	mili)
@@ -142,18 +149,21 @@ int	check_if_dead(t_philo_s	*iti)
 	usleep(100);
 	if ((get_current_time() - ft_getters_value(iti->last_time_eaten, &iti->last_time_eaten_mtx)) >= iti->info.time_to_die)
 	{
-		pthread_mutex_lock(&iti->info.printf_mtx);
-		printf("%d\n", iti->philo_index);
-		printf("\033[1;31m" "last_time_eaten %ld\n" "\033[0m", iti->last_time_eaten);
-		printf("\033[1;31m" "current_time %ld\n" "\033[0m", get_current_time());
-		printf("time to die %ld\n", iti->info.time_to_die);
-		printf("\033[1;31m" "%ld\n\n" "\033[0m", get_current_time() - ft_getters_value(iti->last_time_eaten, &iti->last_time_eaten_mtx));
-		pthread_mutex_unlock(&iti->info.printf_mtx);
-		printf("\033[1;31m" "%ld last time has eating\n" "\033[0m", get_current_time() - ft_getters_value(iti->last_time_eaten, &iti->last_time_eaten_mtx));
+		// pthread_mutex_lock(&iti->info.printf_mtx);
+		// printf("%d\n", iti->philo_index);
+		// printf("\033[1;31m" "last_time_eaten %ld\n" "\033[0m", iti->last_time_eaten);
+		// printf("\033[1;31m" "current_time %ld\n" "\033[0m", get_current_time());
+		// printf("time to die %ld\n", iti->info.time_to_die);
+		// printf("\033[1;31m" "%ld\n\n" "\033[0m", get_current_time() - ft_getters_value(iti->last_time_eaten, &iti->last_time_eaten_mtx));
+		// pthread_mutex_unlock(&iti->info.printf_mtx);
+		// printf("\033[1;31m" "%ld last time has eating\n" "\033[0m", get_current_time() - ft_getters_value(iti->last_time_eaten, &iti->last_time_eaten_mtx));
+		// my_printf(iti, "*** is dead ***\n");
 		ft_setters(iti->stop_simulation, 1, &iti->info.stop_simulation_mtx);
 		if (ft_getters(iti->info.eating_number, &iti->info.eating_number_mtx) == -1)
 			ft_setters(iti->info.eating_number, -2, &iti->info.eating_number_mtx);
-		my_printf(iti, "*** is dead ***\n");
+		pthread_mutex_lock(&iti->info.printf_mtx);
+		printf("\033[1;31m%ld %d died\033[0m\n", get_current_time() - ft_getters(iti->starting_of_simulation, &iti->info.starting_of_simulation_mtx), iti->philo_index);
+		pthread_mutex_unlock(&iti->info.printf_mtx);
 		return (1);
 	}
 	return (0);
